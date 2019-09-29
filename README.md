@@ -11,6 +11,7 @@
 [index09.html](basic/index09.html)<br>
 [index10.html](basic/index10.html)<br>
 [scatterplot.html](d3_update/scatterplot.html)<br>
+[crossfilter1.html](d3_crossfilter/index.html)<br>
 
 ---
 
