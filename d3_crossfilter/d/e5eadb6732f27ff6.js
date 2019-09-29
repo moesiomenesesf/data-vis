@@ -1,4 +1,4 @@
-// https://observablehq.com/@moesiomenesesf/d3-com-crossfilter-e-dc-js@239
+// https://observablehq.com/@moesiomenesesf/d3-com-crossfilter-e-dc-js@240
 export default function define(runtime, observer) {
   const main = runtime.module();
   main.variable(observer()).define(["md"], function(md){return(
@@ -459,7 +459,7 @@ genreDim.groupAll()
 )});
   main.variable(observer("build4")).define("build4", ["md","container","dc","d3","genreDim","moneyGenreDim"], function(md,container,dc,d3,genreDim,moneyGenreDim)
 {
-  let view = md`${container('chart5','Total Arrecadado pelas Bilheterias por ano em Milhões de Dólares')}`
+  let view = md`${container('chart5','Total Arrecadado pelas Bilheterias por gênero em Milhões de Dólares')}`
   let barChart = dc.barChart(view.querySelector("#chart5"))
   let xScale = d3.scaleTime()
                   .domain([genreDim.bottom(1)[0], genreDim.top(1)[0]])
