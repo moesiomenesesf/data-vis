@@ -1,4 +1,5 @@
 ## Aula do dia 02/09/2019
+[leaflet.html](d3_leaflet/index.html)<br>
 [crossfilter2.html](d3_crossfilter_2/index.html)<br>
 [crossfilter1.html](d3_crossfilter/index.html)<br>
 [scatterplot.html](d3_update/scatterplot.html)<br>
