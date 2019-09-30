@@ -1,0 +1,14 @@
+{
+  "name": "@moesiomenesesf/d3-com-crossfilter-e-dc-js-parte-2",
+  "main": "d/2e6674ce4a59228e.js",
+  "version": "174.0.0",
+  "homepage": "https://observablehq.com/@moesiomenesesf/d3-com-crossfilter-e-dc-js-parte-2",
+  "author": {
+    "name": "moesiomenesesf",
+    "url": "https://observablehq.com/@moesiomenesesf"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4"
+  }
+}
