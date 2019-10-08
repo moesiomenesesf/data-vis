@@ -1,6 +1,6 @@
 # D3 com Crossfilter e DC.js (Parte 2)
 
-https://observablehq.com/@moesiomenesesf/d3-com-crossfilter-e-dc-js-parte-2/2@203
+https://observablehq.com/@moesiomenesesf/d3-com-crossfilter-e-dc-js-parte-2/3@263
 
 View this notebook in your browser by running a web server in this folder. For
 example:
@@ -14,14 +14,14 @@ import this module directly into your application. To npm install:
 
 ~~~sh
 npm install @observablehq/runtime@4
-npm install https://api.observablehq.com/d/29968907c835f298.tgz?v=3
+npm install https://api.observablehq.com/d/edd7dbdd9a8e3f4c.tgz?v=3
 ~~~
 
 Then, import your notebook and the runtime as:
 
 ~~~js
 import {Runtime, Inspector} from "@observablehq/runtime";
-import define from "@moesiomenesesf/d3-com-crossfilter-e-dc-js-parte-2/2";
+import define from "@moesiomenesesf/d3-com-crossfilter-e-dc-js-parte-2/3";
 ~~~
 
 To log the value of the cell named “foo”:

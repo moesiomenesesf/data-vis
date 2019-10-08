@@ -1,4 +1,4 @@
-// https://observablehq.com/@moesiomenesesf/d3-com-crossfilter-e-dc-js-parte-2/2@203
+// https://observablehq.com/@moesiomenesesf/d3-com-crossfilter-e-dc-js-parte-2/3@263
 export default function define(runtime, observer) {
   const main = runtime.module();
   main.variable(observer()).define(["md"], function(md){return(
@@ -10,101 +10,93 @@ html`<code>css</code> <link rel="stylesheet" href="https://stackpath.bootstrapcd
 `
 )});
   main.variable(observer("dataset")).define("dataset", ["d3"], function(d3){return(
-d3.csv("https://gist.githubusercontent.com/emanueles/65a308ffa630689c11a031252998ef8d/raw/a004c770786229d54264406118ae21ba7e4c51a8/earthquakes.csv").then(function(data){
+d3.csv("https://gist.githubusercontent.com/emanueles/13dfe2c1d43e11b5207bb4e6125d71bf/raw/41d14f8fbd9d6cd9e8ad074f8417cff1329ab339/chicago_crimes_sept_2019.csv").then(function(data){
   
-  let parse1f = d3.format(".1f");
-  let pardeD = d3.format("d");
-  data.forEach(function(d,i){
-    d.origintime = d3.utcParse(d.origintime.substr(0,19))
-    d.magnitude = parse1f(d.magnitude);
-    d.depth = pardeD(d.depth);
-    d.date = new Date(d.origintime);
-  })
-  
-  return data;
+    data.forEach(d => {
+        
+      d.dtg = new Date(d['Date']);
+      
+    });
+
+    return data;
 })
 )});
   main.variable(observer("facts")).define("facts", ["crossfilter","dataset"], function(crossfilter,dataset){return(
 crossfilter(dataset)
 )});
-  main.variable(observer("dateDimension")).define("dateDimension", ["facts"], function(facts){return(
-facts.dimension(d => d.date)
+  main.variable(observer("dateDimension")).define("dateDimension", ["facts","d3"], function(facts,d3){return(
+facts.dimension(d => d3.timeDay(d.dtg))
 )});
-  main.variable(observer("magnitudeDimension")).define("magnitudeDimension", ["facts"], function(facts){return(
-facts.dimension(d => d.magnitude)
+  main.variable(observer("dateRobbery")).define("dateRobbery", ["dateDimension"], function(dateDimension){return(
+dateDimension.group().reduceSum(d => d["Primary Type"] == "ROBBERY")
 )});
-  main.variable(observer("depthDimension")).define("depthDimension", ["facts"], function(facts){return(
-facts.dimension(d => d.depth)
+  main.variable(observer("dateHomicide")).define("dateHomicide", ["dateDimension"], function(dateDimension){return(
+dateDimension.group().reduceSum(d => d["Primary Type"] == "HOMICIDE")
 )});
-  main.variable(observer("earthquakeHourDimension")).define("earthquakeHourDimension", ["facts","d3"], function(facts,d3){return(
-facts.dimension(d => d3.timeHour(d.date))
+  main.variable(observer("dateBurglary")).define("dateBurglary", ["dateDimension"], function(dateDimension){return(
+dateDimension.group().reduceSum(d => d["Primary Type"] == "BURGLARY")
 )});
-  main.variable(observer("magnitudeGroup")).define("magnitudeGroup", ["magnitudeDimension"], function(magnitudeDimension){return(
-magnitudeDimension.group()
+  main.variable(observer("primaryTypeDimension")).define("primaryTypeDimension", ["facts"], function(facts){return(
+facts.dimension(d => d['Primary Type'])
 )});
-  main.variable(observer("depthGroup")).define("depthGroup", ["depthDimension"], function(depthDimension){return(
-depthDimension.group()
+  main.variable(observer("primaryTypeCountGroup")).define("primaryTypeCountGroup", ["primaryTypeDimension"], function(primaryTypeDimension){return(
+primaryTypeDimension.group()
 )});
-  main.variable(observer("earthquakeHourGroup")).define("earthquakeHourGroup", ["earthquakeHourDimension"], function(earthquakeHourDimension){return(
-earthquakeHourDimension.group()
-)});
-  main.variable(observer("buildvis")).define("buildvis", ["md","container","dc","dateDimension","d3","dataset","magnitudeDimension","magnitudeGroup","depthDimension","depthGroup","earthquakeHourDimension","earthquakeHourGroup"], function(md,container,dc,dateDimension,d3,dataset,magnitudeDimension,magnitudeGroup,depthDimension,depthGroup,earthquakeHourDimension,earthquakeHourGroup)
+  main.variable(observer("buildvis")).define("buildvis", ["md","container","dc","d3","dateDimension","primaryTypeDimension","primaryTypeCountGroup","dateHomicide","dateRobbery","dateBurglary"], function(md,container,dc,d3,dateDimension,primaryTypeDimension,primaryTypeCountGroup,dateHomicide,dateRobbery,dateBurglary)
 {
-  let view = md`${container()}`
-  let datatable = dc.dataTable(view.querySelector("#dc-table-graph"));
-  let magnitudeBarChart = dc.barChart(view.querySelector('#magnitude-chart'));
-  let depthBarChart = dc.barChart(view.querySelector('#depth-chart'));
-  let lineChart = dc.lineChart(view.querySelector('#time-chart'));
+  let view = md`${container()}`;
   
-  datatable.width(960)
-           .height(800)
-           .dimension(dateDimension)
-           .group(d => "List of all earthquakes corresponding to the filters")
-           .size(10)
-           .columns(['origintime','depth','magnitude','latitude','longitude'])
-           .sortBy(d => d.origintime)
-           .order(d3.descending);
+     let barChart = dc.barChart(view.querySelector('#grafico-tipo'));
+     let compositeChart = dc.compositeChart(view.querySelector("#grafico-dia"))
   
-  let magnitudeXScale = d3.scaleLinear().domain([0,8]);
-  let depthXScale = d3.scaleLinear().domain([0,100]);
-  let hourXScale = d3.scaleTime().domain(d3.extent(dataset, d => d.date))
+
+     let xScale = d3.scaleTime()
+                  .domain([dateDimension.bottom(1)[0].dtg, dateDimension.top(1)[0].dtg])
+     let colorScale = d3.scaleOrdinal()
+                        .domain(["HOMICIDE", "ROBBERY", "BURGLARY"])
+                        .range(["#ca0020", "#0571b0", "#fdae61"])
   
-  magnitudeBarChart.width(480)
-            .height(150)
-            .dimension(magnitudeDimension)
-            .group(magnitudeGroup)
-            .x(magnitudeXScale)
-            .gap(56)
-            .elasticY(true);
-            
-  depthBarChart.width(480)
-            .height(150)
-            .dimension(depthDimension)
-            .group(depthGroup)
-            .x(depthXScale)
-            .gap(1)
-            .elasticY(true);
+     barChart.width(500)
+             .height(200)
+             .dimension(primaryTypeDimension)
+             .group(primaryTypeCountGroup)
+             .x(d3.scaleBand())
+             .xUnits(dc.units.ordinal)
+             .gap(30)
+             .colors(colorScale)
+             .colorAccessor(d => d.key)
   
-  lineChart.width(960)
-             .height(150)
-             .dimension(earthquakeHourDimension)
-             .group(earthquakeHourGroup)
-             .x(hourXScale);
+    compositeChart.width(500)
+                  .height(200)
+                  .x(xScale)
+                  .compose([
+                    dc.lineChart(compositeChart)
+                    .group(dateHomicide,'HOMICIDE')
+                    .ordinalColors(['#ca0020']),
+                    dc.lineChart(compositeChart)
+                    .group(dateRobbery,'ROBBERY')
+                    .ordinalColors(['#0571b0']),
+                    dc.lineChart(compositeChart)
+                    .group(dateBurglary,'BURGLARY')
+                    .ordinalColors(['#fdae61'])
+        
+                  ])
+              
+     
+
               
               
-  
-  datatable.render();
-  magnitudeBarChart.render();
-  depthBarChart.render();
-  lineChart.render();
+     barChart.render();
+     compositeChart.render();
+
   return view
 }
 );
   main.variable(observer("map")).define("map", ["buildvis","L"], function(buildvis,L)
 {
   buildvis;
-  let mapInstance = L.map('mapid').setView([-41.05,172.93], 5)
-  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+  let mapInstance = L.map('mapid').setView([41.878113,-87.629799], 10)
+  L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/">OpenStreetMap</a>contributors',
     maxZoom: 17
     }).addTo(mapInstance)
@@ -118,13 +110,37 @@ L.layerGroup().addTo(map)
 {
   circlesLayer.clearLayers()
   dataset.forEach( function(d) {
-    let circle = L.circle([d.latitude, d.longitude], 10000*d.magnitude, {
-    color: '#fd8d3c',
-    weight: 2,
-    fillColor: '#fecc5c',
-    fillOpacity: 0.5
-    })
-    circle.bindPopup(`Magnitude: ${d.magnitude} <br> Time: ${d.date}`);
+    let circle = L.circle([d.Latitude, d.Longitude], 250, {
+      color: '#ca0020',
+      weight: 2,
+      fillColor: '#ca0020',
+      fillOpacity: 0.5
+      })
+    
+    if(d["Primary Type"] == "HOMICIDE"){
+      circle = L.circle([d.Latitude, d.Longitude], 500, {
+      color: '#ca0020',
+      weight: 2,
+      fillColor: '#ca0020',
+      fillOpacity: 0.5
+      })
+    }else if(d["Primary Type"] == "ROBBERY"){
+      circle = L.circle([d.Latitude, d.Longitude], 500, {
+      color: '#0571b0',
+      weight: 2,
+      fillColor: '#0571b0',
+      fillOpacity: 0.5
+      })
+    }else if(d["Primary Type"] == "BURGLARY"){
+      circle = L.circle([d.Latitude, d.Longitude], 500, {
+      color: '#fdae61',
+      weight: 2,
+      fillColor: '#fdae61',
+      fillOpacity: 0.5
+      })
+    }
+                            
+    
   circlesLayer.addLayer(circle) })
 }
 );
@@ -133,41 +149,24 @@ function container() {
   return `
 <main role="main" class="container">
     <div class="row">
-      <h4> Earthquakes in New Zealand</h4>
+      <h4> Crimes em Chicago</h4>
     </div>
     <div class='row'>
-      <div id="mapid" class="col-6"> </div>
-      <div class="col-6">
-        <div id='magnitude-chart'>
-          <h5> Number of Events by Magnitude </h5>
-        </div>
-
-        <div id='depth-chart'>
-          <h5> Events by Depth (km) </h5>
-        </div>
-
+      <div id="mapid" class="col-6"> 
       </div>
+      <div class="col-6">
+          <div id='grafico-tipo'>
+            <h5> Crimes por TIPO</h5>
+          </div>
+
+          <div id='grafico-dia'>
+            <h5> Crimes por DIA </h5>
+          </div>
+        </div>
         
             
         
     </div>
-    <div class='row'>
-      <div id='time-chart' class="single-col">
-        <h5> Events per hour </h5>
-      </div>
-    </div>
-    <table class="table table-hover" id="dc-table-graph">
-        <thead>
-            <tr class="header">
-                <th>DTG</th>
-                <th>Magnitude</th>
-                <th>Depth</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-            </tr>
-        </thead>
-    </table>
-   <p>Earthquake data via <a href="https://quakesearch.geonet.org.nz/">Geonet</a>.</p>
   </main>
  `
 }
