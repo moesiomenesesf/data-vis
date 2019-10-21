@@ -2,6 +2,8 @@
 [leaflet.html](d3_leaflet/index.html)<br>
 [crossfilter2.html](d3_crossfilter_2/index.html)<br>
 [crossfilter1.html](d3_crossfilter/index.html)<br>
+[color_1.html](d3_color_1/index.html)<br>
+[color_2.html](d3_color_2/index.html)<br>
 [scatterplot.html](d3_update/scatterplot.html)<br>
 [index01.html](basic/index01.html)<br>
 [index02.html](basic/index02.html)<br>
